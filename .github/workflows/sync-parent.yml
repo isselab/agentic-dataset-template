@@ -1,0 +1,84 @@
+name: Sync parent submodule pointer
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sync-parent-${{ github.repository }}
+  cancel-in-progress: true
+
+env:
+  PARENT_REPOSITORY: isselab/agentic-feature-traced-datasets
+  TEMPLATE_REPOSITORY: isselab/agentic-dataset-template
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Detect generated dataset
+        id: dataset
+        shell: bash
+        run: |
+          if [ "$GITHUB_REPOSITORY" = "$TEMPLATE_REPOSITORY" ]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Template repository is not synchronized."
+          elif [ -f .github/.bootstrap ]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Template/bootstrap repository is not synchronized."
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Update the pinned dataset commit in a parent pull request
+        if: steps.dataset.outputs.ready == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.PARENT_REPO_PAT }}
+          DATASET_NAME: ${{ github.event.repository.name }}
+          DATASET_SHA: ${{ github.sha }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::error::PARENT_REPO_PAT is unavailable."
+            exit 1
+          fi
+          gh auth setup-git
+          gh repo clone "$PARENT_REPOSITORY" parent
+          cd parent
+          if [ ! -d "datasets/$DATASET_NAME" ]; then
+            echo "::notice::Dataset is not registered in parent main yet; nothing to sync."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git submodule update --init "datasets/$DATASET_NAME"
+          git -C "datasets/$DATASET_NAME" fetch origin "$DATASET_SHA"
+          git -C "datasets/$DATASET_NAME" checkout --detach "$DATASET_SHA"
+          git add "datasets/$DATASET_NAME"
+          if git diff --cached --quiet; then
+            echo "::notice::Parent already points to $DATASET_SHA."
+            exit 0
+          fi
+          short_sha="${DATASET_SHA:0:12}"
+          branch="automation/sync-$DATASET_NAME"
+          git checkout -b "$branch"
+          git commit -m "Update $DATASET_NAME to $short_sha"
+          git push --force-with-lease --set-upstream origin "$branch"
+          if gh pr view "$branch" --repo "$PARENT_REPOSITORY" >/dev/null 2>&1; then
+            gh pr edit "$branch" \
+              --repo "$PARENT_REPOSITORY" \
+              --title "Update $DATASET_NAME to $short_sha" \
+              --body "Automated submodule update to [$DATASET_SHA](https://github.com/${{ github.repository }}/commit/$DATASET_SHA)."
+          else
+            gh pr create \
+              --repo "$PARENT_REPOSITORY" \
+              --base main \
+              --head "$branch" \
+              --title "Update $DATASET_NAME to $short_sha" \
+              --body "Automated submodule update to [$DATASET_SHA](https://github.com/${{ github.repository }}/commit/$DATASET_SHA)."
+          fi
