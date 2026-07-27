@@ -3,11 +3,7 @@
 Use this GitHub template to create feature-evolution datasets for Agent-HAnS.
 Each generated repository contains an initial project, an ordered sequence of
 prompts, the intended feature changes, and the expected traceability artifacts
-after each step.
-
-The template defines dataset contents and checks their structure. Reviewing
-the agent's generated result after each round remains the dataset author's
-responsibility.
+after each step. The template defines dataset contents and checks their structure.
 
 ## Create a dataset repository
 
@@ -47,14 +43,10 @@ parent synchronization remain.
 
 The subject is version `v000`. Each step transitions from one logical version
 to the next and is executed on the working state produced by the preceding
-step. Supported feature operations are `add`, `modify`, `remove`, `merge`,
-`split`, `rename`, `relocate`, and `interact`.
+step.
 
 Ground truth contains the expected feature model, folder mappings, file
-mappings, fragment annotations, and interactions after a step. Preserve native
-Agent-HAnS/FAXE-compatible artifacts and declare their formats in the
-ground-truth manifest. How generated results are inspected is intentionally
-outside the scope of this template.
+mappings, fragment annotations, and interactions after a step.
 
 ## Authoring workflow
 
