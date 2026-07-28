@@ -175,9 +175,9 @@ def validate_change(change: object, label: str) -> str:
     after = change["features_after"]
     for field, values in (("features_before", before), ("features_after", after)):
         if not isinstance(values, list) or any(not nonempty(item) for item in values):
-            fail(f"{label}.{field} must be an array of non-empty feature IDs")
+            fail(f"{label}.{field} must be an array of non-empty feature names")
         if len(values) != len(set(values)):
-            fail(f"{label}.{field} contains duplicate feature IDs")
+            fail(f"{label}.{field} contains duplicate feature names")
 
     valid_arity = {
         "add": len(before) == 0 and len(after) >= 1,

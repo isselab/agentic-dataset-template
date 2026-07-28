@@ -54,7 +54,7 @@ mappings, fragment annotations, and interactions after a step.
 2. Complete `dataset.json`, including provenance and limitations.
 3. Replace `step-001` with the first controlled evolution step.
 4. Preserve each prompt exactly and list multiple prompts in execution order.
-5. Record intended changes using stable feature identifiers.
+5. Record intended changes using the exact feature names from the feature model.
 6. Create the expected post-step traceability artifacts.
 7. Copy `step-001` for later steps and update `benchmark/steps.json`.
 8. Keep version transitions continuous: `v000 → v001 → v002`, and so on.

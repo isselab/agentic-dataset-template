@@ -16,7 +16,7 @@
       "id": "change-001",
       "operation": "add",
       "features_before": [],
-      "features_after": ["replace-with-feature-id"],
+      "features_after": ["Replace with feature name"],
       "description": "Replace with the intended feature-level change."
     }
   ],
