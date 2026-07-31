@@ -7,21 +7,21 @@ after each step. The template defines dataset contents and checks their structur
 
 ## Create a dataset repository
 
-1. Mark this repository as a **Template repository** under
-   **Settings → General** (one-time administrator action).
-2. Make the organization Actions secret `PARENT_REPO_PAT` available to the new
-   repository.
-3. Select **Use this template → Create a new repository** and create it in
+1. Select **Use this template → Create a new repository** and create it in
    `isselab` with a short, unique name.
-4. Wait for **Bootstrap dataset repository**.
-5. Review and merge the registration pull request opened in
+2. Wait for **Bootstrap dataset repository**.
+3. Review and merge the registration pull request opened in
    `isselab/agentic-feature-traced-datasets`.
-6. Replace all placeholder content and construct the dataset as described
+4. Replace all placeholder content and construct the dataset as described
    below.
 
 Bootstrap fills the repository name, URL, and date, generates a
 dataset-specific README, and removes its one-shot files. Dataset validation and
 parent synchronization remain.
+
+Users outside the `isselab` organization can also use and validate this
+template. See [CONTRIBUTING.md](CONTRIBUTING.md) for the external workflow and
+the organization-specific automation that must be removed.
 
 ## Dataset contract
 

@@ -25,18 +25,18 @@ Each dataset must be:
 
 Each repository represents one software project and one ordered evolution history.
 
-| Property                          | Requirement                                                          |
-| --------------------------------- | -------------------------------------------------------------------- |
-| Initial logical version           | `v000`                                                               |
-| Evolution steps                   | 10-12; 12 preferred when feasible                                    |
-| Prompts                           | At least one per step; normally 1-3 related prompts                  |
-| Initial top-level domain features | At least 2                                                           |
-| Final feature-model size          | Normally 8-20 meaningful features                                    |
-| Final source-code size            | Normally 15-60 relevant source files                                 |
-| Language                          | Prefer one primary language                                          |
-| Build and tests                   | Must run locally with documented commands                            |
-| Operations                        | Add, modify, delete, rename, relocate, split, merge, and interaction |
-| Complex implementation            | At least one scattered feature and one shared or tangled fragment    |
+| Property                          | Requirement                                                       |
+| --------------------------------- | ----------------------------------------------------------------- |
+| Initial logical version           | `v000`                                                            |
+| Evolution steps                   | 10-12; 12 preferred when feasible                                 |
+| Prompts                           | At least one per step; normally 1-3 related prompts               |
+| Initial top-level domain features | At least 2                                                        |
+| Final feature-model size          | Normally 8-20 meaningful features                                 |
+| Final source-code size            | Normally 15-60 relevant source files                              |
+| Language                          | Prefer one primary language (Could have exceptions)               |
+| Build and tests                   | Must run locally with documented commands                         |
+| Operations                        | Add, modify, delete, rename, relocate, split, and merge           |
+| Complex implementation            | At least one scattered feature and one shared or tangled fragment |
 
 Retain the template structure:
 
