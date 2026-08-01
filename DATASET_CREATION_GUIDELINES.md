@@ -33,7 +33,7 @@ Each repository represents one software project and one ordered evolution histor
 | Initial top-level domain features | At least 2                                                        |
 | Final feature-model size          | Normally 8-20 meaningful features                                 |
 | Final source-code size            | Normally 15-60 relevant source files                              |
-| Language                          | Prefer one primary language (Could have exceptions)               |
+| Language                          | Prefer one primary language (could have exceptions)               |
 | Build and tests                   | Must run locally with documented commands                         |
 | Operations                        | Add, modify, delete, rename, relocate, split, and merge           |
 | Complex implementation            | At least one scattered feature and one shared or tangled fragment |
@@ -64,7 +64,17 @@ Retain the template structure:
 
 ## 3. Subject and Evolution Plan
 
-Choose a domain that naturally supports related features and interactions, such as task management, booking, inventory, issue tracking, learning management, or content management.
+Choose something you are genuinely interested in building. The project should be engaging enough that you can make credible product and technical decisions throughout its evolution. Prefer a domain that naturally supports related features and interactions, such as task management, booking, inventory, issue tracking, learning management, or content management.
+
+Plan the subject and every evolution step from the perspectives of all three stakeholder roles:
+
+- **Product owner (PO):** Define the product goal, prioritize valuable increments and control scope.
+- **User:** Consider real workflows, usability, observable behavior, feedback, and edge cases that affect whether the software is useful.
+- **Developer:** Consider technical feasibility, architecture, maintainability, testing, refactoring needs, and the cost of changing existing code.
+
+These perspectives must shape the evolution together. A feature that appears valuable to the PO should solve a plausible user need and be implementable and maintainable from the developer's perspective. Individual prompts may emphasize one role, but the complete evolution must demonstrate that all three were considered. You can even record important stakeholder assumptions and motivations in the dataset documentation so reviewers can understand why each change belongs in the project.
+
+Let the project evolve as a real project would. Start with a useful baseline, add capabilities in response to product goals and user needs, and allow feedback, newly discovered constraints, technical debt, and changing priorities to motivate later modifications, refactorings, relocations, splits, merges, or deletions. You can refer to [ReferenceManager dataset](https://johan.martinson.phd/agentic-traceability-maintenance-dataset/) as an example.
 
 The initial state may be an implemented baseline, but its features and traceability state must be documented as `v000`.
 
@@ -132,18 +142,19 @@ rename, and delete labels. Deleting a label must remove its assignments but
 must not delete any task.
 ```
 
-Store multiple prompts as separate files in execution order and list them in the same order in `step.json`.
+Store multiple prompts as separate files in execution order and list them in the same order in `step.json`. After receiving each agent response, use `\export` and store the exported response together with the corresponding prompt in the prompt file. Preserve the original prompt and response verbatim and clearly distinguish them from any later notes or analysis.
 
 For each step:
 
 1. Start from the exact preceding state and confirm the build and tests pass.
 2. Submit the stored prompts in order.
-3. Preserve the result without silently adding manual feature work. Use recorded corrective prompts for defects, or explicitly document manual intervention.
-4. Verify the requested behavior, build, and tests.
-5. Inspect the implementation and record the actual feature-level result in `step.json`.
-6. Create and cross-check the complete post-step ground truth.
-7. Run `python scripts/validate_dataset.py`.
-8. Commit the validated step with its logical version.
+3. Export and store each response with its corresponding prompt by using `\export`.
+4. Preserve the result without silently adding manual feature work. Use recorded corrective prompts for defects, or explicitly document manual intervention.
+5. Verify the requested behavior, build, and tests.
+6. Inspect the implementation and record the actual feature-level result in `step.json`.
+7. Create and cross-check the complete post-step ground truth.
+8. Run `python scripts/validate_dataset.py`.
+9. Commit the validated step with its logical version.
 
 Reject or repeat a step if it does not implement the requested behavior, does not build, or is too ambiguous for defensible ground truth.
 
@@ -185,7 +196,19 @@ Use continuous logical versions:
 v000 -> v001 -> v002 -> ... -> v012
 ```
 
-Commit the validated initial subject as `v000` and create one identifiable commit per completed step. After a dataset has been published or used for evaluation, do not modify its prompts. Publish ground-truth corrections as a new dataset release and document the changes.
+Commit the validated initial subject as `v000` and create one identifiable commit per completed step. Add an annotated Git tag to each of these commits using the corresponding logical version: `v000` for the initial state, `v001` for the state after `step-001`, and so on. A tag identifies the complete validated repository state at that version, including the implementation and the benchmark artifacts accumulated up to that point. For example:
+
+```bash
+git tag -a v000 -m "Initial subject project"
+git tag -a v001 -m "State after evolution step 001"
+git push origin --tags
+```
+
+The Git tags complement the version fields in the dataset metadata. They do not replace them. Do not move or reuse a published version tag.
+
+You can use [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`) for releases of the complete dataset. Increment `MAJOR` for incompatible changes to the dataset format or evaluation assumptions, `MINOR` for backward-compatible additions, and `PATCH` for backward-compatible corrections. Semantic release versions complement rather than replace the logical evolution versions: `v000` through `v012` identify states within the project history, whereas a tag such as `dataset-v1.0.0` identifies a published release of the complete dataset.
+
+After a dataset has been published or used for evaluation, do not modify its prompts. Publish ground-truth corrections as a new dataset release and document the changes.
 
 ## 9. Acceptance Checklist
 
@@ -193,10 +216,13 @@ A dataset is ready only when:
 
 - [ ] `v000` is complete, documented, buildable, and tested.
 - [ ] It contains 10-12 continuously ordered steps with at least one exact prompt each.
+- [ ] The subject is motivated by a coherent product story, and the PO, user, and developer perspectives are represented across its evolution.
+- [ ] Every agent response is preserved with its corresponding prompt using `\export`.
 - [ ] All required operations and complexity cases are covered.
 - [ ] Each step has a complete, schema-valid post-step feature model, mappings and fragments.
 - [ ] Feature names are consistent across the feature model, transition metadata, and tracking artifacts.
 - [ ] The project builds and relevant tests pass after every step.
+- [ ] Every validated version commit has the corresponding annotated Git tag (`v000`, `v001`, and so on), and published tags have not been moved or reused.
 - [ ] Ground truth is manually validated, independent of tool output, and additionally reviewed for complex steps where possible.
 - [ ] No stale, superficial, unsupported, or hallucinated traces remain.
 - [ ] Manual edits, retries, corrections, provenance, environment, licenses, and limitations are documented.
