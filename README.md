@@ -74,11 +74,12 @@ version continuity. It does not evaluate an agent's generated result.
 
 ## Automation and security
 
-`PARENT_REPO_PAT` must be a fine-grained token restricted to the parent
-repository with **Contents: read and write** and **Pull requests: read and
-write**. Store it as an `isselab` organization Actions secret. Before creating
-a dataset, set its repository access to **All repositories**; alternatively,
-add each new dataset repository to **Selected repositories** after creation.
+`PARENT_REPO_PAT` must be an organization-approved fine-grained token whose
+resource owner is `isselab`. Restrict it to the parent repository with
+**Contents: read and write** and **Pull requests: read and write**. Store it as
+an `isselab` organization Actions secret. Before creating a dataset, set its
+repository access to **All repositories**; alternatively, add each new dataset
+repository to **Selected repositories** after creation.
 
 GitHub Free does not expose organization Actions secrets to private
 repositories. A private dataset therefore needs its own repository-level
