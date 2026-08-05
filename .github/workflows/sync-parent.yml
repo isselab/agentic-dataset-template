@@ -36,49 +36,81 @@ jobs:
             echo "ready=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Update the pinned dataset commit in a parent pull request
+      - name: Register or update the dataset in a parent pull request
         if: steps.dataset.outputs.ready == 'true'
         env:
           GH_TOKEN: ${{ secrets.PARENT_REPO_PAT }}
+          DATASET_REPOSITORY: ${{ github.repository }}
           DATASET_NAME: ${{ github.event.repository.name }}
           DATASET_SHA: ${{ github.sha }}
         run: |
           if [ -z "$GH_TOKEN" ]; then
-            echo "::error::PARENT_REPO_PAT is unavailable."
+            echo "::error::PARENT_REPO_PAT is unavailable. Grant this repository access to the isselab organization Actions secret, then rerun this workflow."
             exit 1
           fi
           gh auth setup-git
-          gh repo clone "$PARENT_REPOSITORY" parent
-          cd parent
-          if [ ! -d "datasets/$DATASET_NAME" ]; then
-            echo "::notice::Dataset is not registered in parent main yet; nothing to sync."
-            exit 0
-          fi
+          gh repo clone "$PARENT_REPOSITORY" "$RUNNER_TEMP/parent"
+          cd "$RUNNER_TEMP/parent"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git submodule update --init "datasets/$DATASET_NAME"
-          git -C "datasets/$DATASET_NAME" fetch origin "$DATASET_SHA"
-          git -C "datasets/$DATASET_NAME" checkout --detach "$DATASET_SHA"
-          git add "datasets/$DATASET_NAME"
+
+          dataset_path="datasets/$DATASET_NAME"
+          if [ -f .gitmodules ] && git config -f .gitmodules --get-regexp "^submodule\\..*\\.path$" 2>/dev/null | grep -Fq " $dataset_path"; then
+            registered_in_main=true
+            branch="automation/sync-$DATASET_NAME"
+            title="Update $DATASET_NAME to ${DATASET_SHA:0:12}"
+            message="$title"
+          else
+            registered_in_main=false
+            branch="add/$DATASET_NAME"
+            title="Add $DATASET_NAME dataset"
+            message="$title"
+          fi
+
+          if git ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1; then
+            remote_branch=true
+            git fetch origin "$branch"
+            git checkout -B "$branch" "origin/$branch"
+          else
+            remote_branch=false
+            git checkout -b "$branch"
+          fi
+
+          if ! { [ -f .gitmodules ] && git config -f .gitmodules --get-regexp "^submodule\\..*\\.path$" 2>/dev/null | grep -Fq " $dataset_path"; }; then
+            git submodule add "https://github.com/$DATASET_REPOSITORY.git" "$dataset_path"
+          fi
+          git submodule update --init "$dataset_path"
+          git -C "$dataset_path" fetch origin "$DATASET_SHA"
+          git -C "$dataset_path" checkout --detach "$DATASET_SHA"
+          python scripts/render_catalog.py
+          git add .gitmodules README.md "$dataset_path"
+
           if git diff --cached --quiet; then
             echo "::notice::Parent already points to $DATASET_SHA."
-            exit 0
+            if [ "$remote_branch" = false ]; then
+              exit 0
+            fi
+          else
+            git commit -m "$message"
+            git push --set-upstream origin "$branch"
           fi
-          short_sha="${DATASET_SHA:0:12}"
-          branch="automation/sync-$DATASET_NAME"
-          git checkout -b "$branch"
-          git commit -m "Update $DATASET_NAME to $short_sha"
-          git push --force-with-lease --set-upstream origin "$branch"
-          if gh pr view "$branch" --repo "$PARENT_REPOSITORY" >/dev/null 2>&1; then
-            gh pr edit "$branch" \
+
+          if [ "$registered_in_main" = true ]; then
+            body="Automated submodule update to [$DATASET_SHA](https://github.com/$DATASET_REPOSITORY/commit/$DATASET_SHA)."
+          else
+            body="Automated registration of [$DATASET_REPOSITORY](https://github.com/$DATASET_REPOSITORY) as a submodule."
+          fi
+          pr_number="$(gh pr list --repo "$PARENT_REPOSITORY" --head "$branch" --state open --json number --jq '.[0].number')"
+          if [ -n "$pr_number" ]; then
+            gh pr edit "$pr_number" \
               --repo "$PARENT_REPOSITORY" \
-              --title "Update $DATASET_NAME to $short_sha" \
-              --body "Automated submodule update to [$DATASET_SHA](https://github.com/${{ github.repository }}/commit/$DATASET_SHA)."
+              --title "$title" \
+              --body "$body"
           else
             gh pr create \
               --repo "$PARENT_REPOSITORY" \
               --base main \
               --head "$branch" \
-              --title "Update $DATASET_NAME to $short_sha" \
-              --body "Automated submodule update to [$DATASET_SHA](https://github.com/${{ github.repository }}/commit/$DATASET_SHA)."
+              --title "$title" \
+              --body "$body"
           fi

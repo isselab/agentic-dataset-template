@@ -9,15 +9,17 @@ after each step. The template defines dataset contents and checks their structur
 
 1. Select **Use this template → Create a new repository** and create it in
    `isselab` with a short, unique name.
-2. Wait for **Bootstrap dataset repository**.
+2. Wait for **Bootstrap dataset repository**, then for
+   **Sync parent submodule pointer**.
 3. Review and merge the registration pull request opened in
    `isselab/agentic-feature-traced-datasets`.
 4. Replace all placeholder content and construct the dataset as described
    below.
 
 Bootstrap fills the repository name, URL, and date, generates a
-dataset-specific README, and removes its one-shot files. Dataset validation and
-parent synchronization remain.
+dataset-specific README, and removes its one-shot files. It then dispatches the
+persistent parent-sync workflow, which opens the registration pull request.
+Dataset validation and parent synchronization remain in `.github/workflows/`.
 
 Users outside the `isselab` organization can also use and validate this
 template. See [CONTRIBUTING.md](CONTRIBUTING.md) for the external workflow and
@@ -72,13 +74,19 @@ version continuity. It does not evaluate an agent's generated result.
 
 `PARENT_REPO_PAT` must be a fine-grained token restricted to the parent
 repository with **Contents: read and write** and **Pull requests: read and
-write**. Prefer a narrowly available organization Actions secret.
+write**. Store it as an `isselab` organization Actions secret. Before creating
+a dataset, set its repository access to **All repositories**; alternatively,
+add each new dataset repository to **Selected repositories** after creation.
 
 Parent changes are always proposed by pull request. Protect the parent's
 `main` branch and require its catalog validation workflow.
 
-If bootstrap runs before its secret is available, it fails without deleting
-the bootstrap marker. Add the secret and rerun the job.
+GitHub copies the template's tracked files, but it does not copy repository
+secrets. Bootstrap cleanup therefore uses only the generated repository's
+`GITHUB_TOKEN` and does not depend on `PARENT_REPO_PAT`. If parent sync reports
+that the secret is unavailable, grant the generated repository access to the
+organization secret and rerun **Sync parent submodule pointer**. Do not remove
+the persistent validation or sync workflows from an `isselab` dataset.
 
 ## License
 

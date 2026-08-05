@@ -7,19 +7,17 @@ or validate a dataset. Create a repository from the template in your personal
 account or another organization where you have permission to create
 repositories.
 
-The bootstrap and parent-synchronization workflows are specific to `isselab`:
-they require the `PARENT_REPO_PAT` secret and permission to update the official
-dataset catalog. In an external repository, the first bootstrap run may
-therefore fail. Do not request or substitute an organization token. Instead:
+Bootstrap customization works outside `isselab` and removes its one-shot files
+without an organization secret. Parent synchronization is specific to
+`isselab`: its dispatched run will fail because an external repository cannot
+access `PARENT_REPO_PAT` or update the official dataset catalog. Do not request
+or substitute an organization token. After bootstrap finishes:
 
-1. Remove `.github/.bootstrap`, `.github/workflows/bootstrap.yml`,
-   `.github/workflows/sync-parent.yml`, and
-   `.github/scripts/bootstrap_dataset.py` from your generated repository.
+1. Remove `.github/workflows/sync-parent.yml` from your generated repository.
 2. Keep `.github/workflows/validate.yml`, `scripts/validate_dataset.py`, and the
    `schema/` directory.
-3. Replace the placeholder values in `dataset.json`, including the repository
-   URL and creation date, and replace the template README with a description
-   of your dataset.
+3. Replace the remaining placeholder metadata and README sections with a
+   description of your dataset.
 4. Follow the authoring workflow in the README and run the validator locally
    before pushing changes:
 
