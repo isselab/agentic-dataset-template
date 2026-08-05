@@ -45,7 +45,7 @@ jobs:
           DATASET_SHA: ${{ github.sha }}
         run: |
           if [ -z "$GH_TOKEN" ]; then
-            echo "::error::PARENT_REPO_PAT is unavailable. Grant this repository access to the isselab organization Actions secret, then rerun this workflow."
+            echo "::error::PARENT_REPO_PAT is unavailable. Private repositories on GitHub Free cannot use organization Actions secrets; make the dataset public, add PARENT_REPO_PAT as a repository secret, or upgrade the organization plan, then rerun this workflow."
             exit 1
           fi
           gh auth setup-git

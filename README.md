@@ -8,7 +8,9 @@ after each step. The template defines dataset contents and checks their structur
 ## Create a dataset repository
 
 1. Select **Use this template → Create a new repository** and create it in
-   `isselab` with a short, unique name.
+   `isselab` as a **public** repository with a short, unique name. Public
+   visibility is required for zero-touch organization-secret access while
+   `isselab` uses GitHub Free.
 2. Wait for **Bootstrap dataset repository**, then for
    **Sync parent submodule pointer**.
 3. Review and merge the registration pull request opened in
@@ -77,6 +79,10 @@ repository with **Contents: read and write** and **Pull requests: read and
 write**. Store it as an `isselab` organization Actions secret. Before creating
 a dataset, set its repository access to **All repositories**; alternatively,
 add each new dataset repository to **Selected repositories** after creation.
+
+GitHub Free does not expose organization Actions secrets to private
+repositories. A private dataset therefore needs its own repository-level
+`PARENT_REPO_PAT` secret, or the organization must upgrade to GitHub Team.
 
 Parent changes are always proposed by pull request. Protect the parent's
 `main` branch and require its catalog validation workflow.

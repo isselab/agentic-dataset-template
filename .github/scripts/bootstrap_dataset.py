@@ -59,6 +59,7 @@ for relative in (
     ".github/.bootstrap",
     ".github/workflows/bootstrap.yml",
     ".github/scripts/bootstrap_dataset.py",
+    "CONTRIBUTING.md",
     "DATASET_CREATION_GUIDELINES.md"
 ):
     (root / relative).unlink()
