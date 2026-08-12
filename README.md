@@ -49,8 +49,8 @@ The subject is version `v000`. Each step transitions from one logical version
 to the next and is executed on the working state produced by the preceding
 step.
 
-Ground truth contains the expected feature model, folder mappings, file
-mappings, fragment annotations, and interactions after a step.
+Ground truth contains the expected feature model, feature-to-file mappings,
+and feature-to-folder mappings after a step.
 
 ## Authoring workflow
 

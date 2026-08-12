@@ -8,8 +8,6 @@
     "feature_model",
     "folder_mappings",
     "file_mappings",
-    "fragment_mappings",
-    "interactions",
     "validation"
   ],
   "properties": {
@@ -17,8 +15,6 @@
     "feature_model": { "$ref": "#/$defs/artifact" },
     "folder_mappings": { "$ref": "#/$defs/artifact" },
     "file_mappings": { "$ref": "#/$defs/artifact" },
-    "fragment_mappings": { "$ref": "#/$defs/artifact" },
-    "interactions": { "$ref": "#/$defs/artifact" },
     "validation": {
       "type": "object",
       "additionalProperties": false,

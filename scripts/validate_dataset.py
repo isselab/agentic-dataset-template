@@ -33,12 +33,10 @@ MANIFEST_REQUIRED = {
     "benchmark",
     "contents",
 }
-GROUND_TRUTH_ARTIFACTS = {
-    "feature_model",
-    "folder_mappings",
-    "file_mappings",
-    "fragment_mappings",
-    "interactions",
+GROUND_TRUTH_FILES = {
+    ".feature-model",
+    ".feature-to-file",
+    ".feature-to-folder",
 }
 
 
@@ -194,30 +192,6 @@ def validate_change(change: object, label: str) -> str:
     return str(operation)
 
 
-def validate_ground_truth(path: Path, label: str) -> None:
-    truth = load_object(path, label)
-    keys_exact(
-        truth,
-        GROUND_TRUTH_ARTIFACTS | {"validation"},
-        {"$schema"},
-        label,
-    )
-    for key in sorted(GROUND_TRUTH_ARTIFACTS):
-        artifact = truth[key]
-        if not isinstance(artifact, dict):
-            fail(f"{label}.{key} must be an object")
-        keys_exact(artifact, {"path", "format"}, set(), f"{label}.{key}")
-        if not nonempty(artifact["format"]):
-            fail(f"{label}.{key}.format must be non-empty")
-        artifact_path = contained_path(path.parent, artifact["path"], f"{label}.{key}.path")
-        if not artifact_path.is_file():
-            fail(f"{label}.{key}.path must be a file")
-        if artifact_path.suffix.lower() == ".json":
-            load_object(artifact_path, f"{label}.{key} artifact")
-
-    validation = truth["validation"]
-    if not isinstance(validation, dict):
-        fail(f"{label}.validation must be an object")
     keys_exact(validation, {"status", "reviewers", "notes"}, set(), f"{label}.validation")
     if validation["status"] not in {"draft", "reviewed", "adjudicated"}:
         fail(f"{label}.validation.status is unsupported")
@@ -278,6 +252,9 @@ def validate_step(path: Path, index_id: str, expected_sequence: int) -> tuple[st
         prompt_path = contained_path(path.parent, prompt["path"], f"{prompt_label}.path")
         if not prompt_path.is_file() or not prompt_path.read_text(encoding="utf-8").strip():
             fail(f"{prompt_label}.path must be a non-empty file")
+        response_path = prompt_path.parent / "agent_response.md"
+        if not response_path.is_file() or not response_path.read_text(encoding="utf-8").strip():
+            fail(f"{prompt_label}: missing non-empty agent_response.md beside prompt")
 
     scenario_types = step["scenario_types"]
     if (
@@ -304,9 +281,11 @@ def validate_step(path: Path, index_id: str, expected_sequence: int) -> tuple[st
         fail(f"{label}: scenario_types must include every expected-change operation")
 
     truth_path = contained_path(path.parent, step["ground_truth"], f"{label}.ground_truth")
-    if not truth_path.is_file():
-        fail(f"{label}.ground_truth must be a manifest file")
-    validate_ground_truth(truth_path, f"{label}.ground_truth")
+    if not truth_path.is_dir():
+        fail(f"{label}.ground_truth must be a directory")
+    missing = sorted(name for name in GROUND_TRUTH_FILES if not (truth_path / name).is_file())
+    if missing:
+        fail(f"{label}.ground_truth is missing: {', '.join(missing)}")
 
     return str(step["before_version"]), str(step["after_version"])
 

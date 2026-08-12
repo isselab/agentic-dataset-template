@@ -20,5 +20,5 @@
       "description": "Replace with the intended feature-level change."
     }
   ],
-  "ground_truth": "ground-truth/manifest.json"
+  "ground_truth": "ground-truth"
 }

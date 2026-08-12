@@ -142,7 +142,7 @@ rename, and delete labels. Deleting a label must remove its assignments but
 must not delete any task.
 ```
 
-Store multiple prompts as separate files in execution order and list them in the same order in `step.json`. After receiving each agent response, use `\export` and store the exported response together with the corresponding prompt in the prompt file. Preserve the original prompt and response verbatim and clearly distinguish them from any later notes or analysis.
+Store multiple prompts as separate files in execution order and list them in the same order in `step.json`. After receiving each agent response, use `\export` and store the exported response in `prompts/agent_response.md` beside the prompt files.
 
 For each step:
 
