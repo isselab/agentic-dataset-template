@@ -34,7 +34,7 @@ evolution scenarios, feature/annotation formats, and limitations. Keep
 
 ## Contents
 
-- `subject/project/` is the initial project supplied to Agent-HAnS.
+- `Project/` is the initial project supplied to Agent-HAnS.
 - `benchmark/steps.json` orders the feature-evolution steps.
 - Each step contains exact prompts, expected changes, and expected
   traceability artifacts.

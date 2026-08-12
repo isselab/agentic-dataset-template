@@ -42,8 +42,7 @@ Retain the template structure:
 
 ```text
 .
-|-- subject/
-|   `-- project/                       initial project at v000
+|-- Project/                           initial project at v000
 |-- benchmark/
 |   |-- steps.json                     ordered step index
 |   `-- steps/

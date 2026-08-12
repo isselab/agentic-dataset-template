@@ -22,7 +22,7 @@
     "ground_truth_policy": "Each step stores the expected post-step traceability artifacts."
   },
   "contents": {
-    "subject": "subject/project",
+    "subject": "Project",
     "steps": "benchmark/steps.json",
     "documentation": "docs"
   }
