@@ -31,7 +31,7 @@ the organization-specific automation that must be removed.
 
 ```text
 .
-├── Project/                          initial project given to Agent-HAnS
+├── project/                           initial project given to Agent-HAnS
 ├── benchmark/
 │   ├── steps.json                   ordered step index
 │   └── steps/step-NNN/
@@ -54,7 +54,7 @@ and feature-to-folder mappings after a step.
 
 ## Authoring workflow
 
-1. Replace `Project` with the complete initial project.
+1. Replace `project` with the complete initial project.
 2. Complete `dataset.json`, including provenance and limitations.
 3. Replace `step-001` with the first controlled evolution step.
 4. Preserve each prompt exactly and list multiple prompts in execution order.

@@ -42,7 +42,7 @@ Retain the template structure:
 
 ```text
 .
-|-- Project/                           initial project at v000
+|-- project/                           initial project at v000
 |-- benchmark/
 |   |-- steps.json                     ordered step index
 |   `-- steps/
